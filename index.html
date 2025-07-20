@@ -37,12 +37,12 @@
 
     #consejo {
       position: fixed;
-      top: 80px; /* Bajado para dejar espacio debajo del título */
+      top: 80px;
       left: 50%;
       transform: translateX(-50%);
       font-family: 'Dancing Script', cursive;
       font-style: italic;
-      font-size: 0.9em; /* Más pequeño */
+      font-size: 0.9em;
       color: #ffeef2;
       z-index: 10;
       user-select: none;
@@ -165,7 +165,7 @@
           display += '  ';
         } else {
           display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
-          if(i === 1) display += '  '; // dos espacios después del segundo guion
+          if(i === 1) display += '    '; // cuatro espacios después del segundo guion
           else display += ' ';
         }
       }
@@ -177,7 +177,7 @@
 
     const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
 
-    const totalLetrasAleatorias = 15;
+    const totalLetrasAleatorias = 10;
 
     // Para crear letras aleatorias
     function crearLetras() {
@@ -286,3 +286,4 @@
 
 </body>
 </html>
+
