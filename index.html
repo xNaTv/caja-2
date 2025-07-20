@@ -2,144 +2,290 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Mini Juego para Mi Amor</title>
+  <title>Caja 2 💝 - Juego Linterna Ahorcado</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      background-color: #ffdce5;
-      font-family: 'Cursive', sans-serif;
-      overflow: hidden;
-      position: relative;
+      box-sizing: border-box;
+    }
+
+    body {
       height: 100vh;
-      color: #fff;
+      background: black;
+      overflow: hidden;
+      font-family: 'Cursive', sans-serif;
+      cursor: auto;
+      color: white;
+      position: relative;
+      user-select: none;
     }
 
     h1 {
-      text-align: center;
-      font-size: 3em;
-      margin-top: 20px;
-      color: #d63384;
-    }
-
-    .consejo {
-      text-align: center;
-      font-size: 1em;
-      font-style: italic;
-      margin-top: 10px;
-      color: #ffeef2;
-    }
-
-    .vidas {
-      position: absolute;
+      position: fixed;
       top: 10px;
-      right: 20px;
-      font-size: 1.2em;
+      left: 50%;
+      transform: translateX(-50%);
       font-style: italic;
-      color: #ffeef2;
+      font-size: 2.5em;
+      color: pink;
+      z-index: 10;
+      user-select: none;
+      font-family: 'Dancing Script', cursive;
     }
 
-    .palabra {
-      text-align: center;
+    #consejo {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Dancing Script', cursive;
+      font-style: italic;
+      font-size: 0.9em;
+      color: #ffeef2;
+      z-index: 10;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    #vidas-container {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3em;
+      color: #ffeef2;
+      font-style: italic;
+      user-select: none;
+      z-index: 10;
+    }
+
+    .linterna {
+      position: fixed;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.9) 80%);
+      mix-blend-mode: lighten;
+      z-index: 5;
+      transition: left 0.05s, top 0.05s;
+    }
+
+    .letra {
+      position: absolute;
+      color: black;
       font-size: 2em;
-      margin-top: 40px;
-      letter-spacing: 12px;
-      color: #fff;
-    }
-
-    .letras {
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .letras button {
-      background-color: #fff0f5;
-      color: #d63384;
-      border: none;
-      padding: 10px 15px;
-      margin: 5px;
-      font-size: 1em;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    .mensaje {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 1.5em;
       font-style: italic;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+
+    .letra.visible {
+      color: white;
+    }
+
+    .letra.clicked {
+      color: #ff69b4;
+      cursor: default;
+      pointer-events: none;
+      font-weight: bold;
+    }
+
+    #frase-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      letter-spacing: 10px;
+      font-style: italic;
+      color: white;
+      user-select: none;
+      z-index: 10;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 20px;
+      border-radius: 15px;
+      min-width: 300px;
+      text-align: center;
+      font-family: 'Cursive', sans-serif;
+      white-space: nowrap;
+    }
+
+    #mensaje-final {
+      position: fixed;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
       color: #ffeef2;
+      font-weight: bold;
+      font-style: italic;
+      text-align: center;
+      background: rgba(0,0,0,0.8);
+      padding: 20px 40px;
+      border-radius: 20px;
+      display: none;
+      z-index: 20;
+      font-family: 'Dancing Script', cursive;
+      user-select: none;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <div class="vidas" id="vidas">Vidas: 5</div>
-  <h1>¡Adivina la Palabra!</h1>
-  <div class="consejo">Arma la palabra, clickea las letras para completar la palabra</div>
-  <div class="palabra" id="palabra"></div>
-  <div class="letras" id="letras"></div>
-  <div class="mensaje" id="mensaje"></div>
+
+  <h1>Caja 2 💝</h1>
+  <div id="consejo">Arma la palabra, clickea las letras para completar la palabra</div>
+  <div id="vidas-container">Vidas: 5</div>
+
+  <div class="linterna" id="linterna"></div>
+  <div id="letras-container"></div>
+
+  <div id="frase-container"></div>
+  <div id="mensaje-final"></div>
 
   <script>
-    const palabraCorrecta = "te conoci";
-    let letrasAdivinadas = Array.from(palabraCorrecta, c => c === ' ' ? ' ' : '_');
+    const frase = "te pertenezco";
+    const letrasFrase = frase.split('');
+
+    const contenedorLetras = document.getElementById('letras-container');
+    const fraseContainer = document.getElementById('frase-container');
+    const mensajeFinal = document.getElementById('mensaje-final');
+    const linterna = document.getElementById('linterna');
+    const vidasContainer = document.getElementById('vidas-container');
+    const consejo = document.getElementById('consejo');
+
+    function mostrarFrase(estado) {
+      let display = '';
+      for(let i = 0; i < letrasFrase.length; i++){
+        if(letrasFrase[i] === ' '){
+          display += '  ';
+        } else if(i === 2){
+          // Aquí metemos más espacios después del segundo guion
+          display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
+          display += '     '; // CINCO espacios de separación extra
+        } else {
+          display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
+          display += ' ';
+        }
+      }
+      fraseContainer.textContent = display.trim();
+    }
+
+    let estadoLetras = letrasFrase.map(l => l === ' ' ? true : false);
+    mostrarFrase(estadoLetras);
+
+    const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
+
+    const totalLetrasAleatorias = 10;
+
+    // Para crear letras aleatorias
+    function crearLetras() {
+      // Crear letras aleatorias
+      for(let i = 0; i < totalLetrasAleatorias; i++){
+        const span = document.createElement('span');
+        span.classList.add('letra');
+        const letraAleatoria = abecedario[Math.floor(Math.random()*abecedario.length)];
+        span.textContent = letraAleatoria;
+        span.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+        span.style.top = Math.random() * (window.innerHeight - 60) + 'px';
+        contenedorLetras.appendChild(span);
+      }
+      // Crear letras de la frase
+      letrasFrase.forEach(letra => {
+        if(letra !== ' '){
+          const span = document.createElement('span');
+          span.classList.add('letra');
+          span.textContent = letra;
+          span.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+          span.style.top = Math.random() * (window.innerHeight - 60) + 'px';
+          contenedorLetras.appendChild(span);
+        }
+      });
+    }
+
+    crearLetras();
+
+    function actualizarLinterna(e){
+      const x = e.clientX;
+      const y = e.clientY;
+      linterna.style.left = (x - 75) + 'px';
+      linterna.style.top = (y - 75) + 'px';
+
+      const letras = document.querySelectorAll('.letra');
+      letras.forEach(letra => {
+        const rect = letra.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const distancia = Math.hypot(cx - x, cy - y);
+
+        if(distancia < 75 && !letra.classList.contains('clicked')){
+          letra.classList.add('visible');
+        } else if(!letra.classList.contains('clicked')){
+          letra.classList.remove('visible');
+        }
+      });
+    }
+
+    window.addEventListener('mousemove', actualizarLinterna);
+
     let vidas = 5;
+    vidasContainer.textContent = `Vidas: ${vidas}`;
 
-    function actualizarPalabra() {
-      const guiones = letrasAdivinadas.map((letra, i) => {
-        // Aumentamos el espacio entre el segundo y tercer guion
-        if (i === 2) return '  ' + letra;
-        return letra;
-      });
-      document.getElementById("palabra").textContent = guiones.join(' ');
-    }
+    let juegoTerminado = false;
 
-    function mostrarLetras() {
-      const abecedario = "abcdefghijklmnñopqrstuvwxyz";
-      const contenedor = document.getElementById("letras");
-      abecedario.split('').forEach(letra => {
-        const btn = document.createElement("button");
-        btn.textContent = letra;
-        btn.onclick = () => verificarLetra(letra, btn);
-        contenedor.appendChild(btn);
-      });
-    }
+    contenedorLetras.addEventListener('click', e => {
+      if(juegoTerminado) return;
+      if(!e.target.classList.contains('letra') || e.target.classList.contains('clicked')){
+        return;
+      }
 
-    function verificarLetra(letra, boton) {
-      boton.disabled = true;
-      let acierto = false;
-      for (let i = 0; i < palabraCorrecta.length; i++) {
-        if (palabraCorrecta[i] === letra) {
-          letrasAdivinadas[i] = letra;
-          acierto = true;
+      const letraClickeada = e.target.textContent.toLowerCase();
+
+      let actualizado = false;
+      for(let i=0; i < letrasFrase.length; i++){
+        if(letrasFrase[i] === letraClickeada && !estadoLetras[i]){
+          estadoLetras[i] = true;
+          actualizado = true;
         }
       }
 
-      if (!acierto) {
+      if(actualizado){
+        e.target.classList.add('clicked');
+        mostrarFrase(estadoLetras);
+
+        if(estadoLetras.every(v => v === true)){
+          juegoTerminado = true;
+          mensajeFinal.textContent = 'Felicidades amor: el codigo de la caja es "te conoci"';
+          mensajeFinal.style.color = '#ffeef2';
+          mensajeFinal.style.display = 'block';
+          vidasContainer.style.display = 'none';
+          consejo.style.display = 'none';
+        }
+      } else {
         vidas--;
-        document.getElementById("vidas").textContent = "Vidas: " + vidas;
+        vidasContainer.textContent = `Vidas: ${vidas}`;
+        e.target.style.color = '#ff4444';
+        setTimeout(() => {
+          if(!e.target.classList.contains('clicked')){
+            e.target.style.color = 'black';
+          }
+        }, 500);
+
+        if(vidas <= 0){
+          juegoTerminado = true;
+          mensajeFinal.textContent = 'Perdiste :c\nRefresca la página para intentarlo de nuevo.';
+          mensajeFinal.style.color = '#ffeef2';
+          mensajeFinal.style.display = 'block';
+          vidasContainer.style.display = 'none';
+          consejo.style.display = 'none';
+        }
       }
-
-      actualizarPalabra();
-      revisarEstado();
-    }
-
-    function revisarEstado() {
-      if (!letrasAdivinadas.includes('_')) {
-        document.getElementById("mensaje").textContent = 'Felicidades amor: el código de la caja es "te conoci"';
-      } else if (vidas === 0) {
-        document.getElementById("mensaje").textContent = 'Perdiste :c — Recarga la página para intentarlo de nuevo';
-        desactivarBotones();
-      }
-    }
-
-    function desactivarBotones() {
-      const botones = document.querySelectorAll("button");
-      botones.forEach(btn => btn.disabled = true);
-    }
-
-    actualizarPalabra();
-    mostrarLetras();
+    });
   </script>
+
 </body>
 </html>
