@@ -1,225 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Caja 2 💝 - Juego Linterna</title>
-<style>
-  /* Fondo oscuro y estilo general */
-  body {
-    margin: 0;
-    height: 100vh;
-    background: #000;
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
-    user-select: none;
-    position: relative;
-  }
+  <meta charset="UTF-8">
+  <title>Caja 2 💝</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: black;
+      overflow: hidden;
+      font-family: 'Cursive', sans-serif;
+      cursor: none;
+    }
 
-  /* Título centrado arriba, en cursiva y con fuente linda */
-  header {
-    position: fixed;
-    top: 20px;
-    width: 100%;
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    font-style: italic; /* cursiva */
-    font-family: 'Georgia', serif; /* fuente más elegante */
-    pointer-events: none;
-    z-index: 10;
-  }
+    h1 {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3em;
+      color: white;
+      font-style: italic;
+      z-index: 10;
+    }
 
-  /* Letras estilo sopa de letras */
-  #letters {
-    position: absolute;
-    top: 80px;
-    left: 0;
-    right: 0;
-    bottom: 100px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-content: center;
-    gap: 8px;
-    padding: 20px;
-  }
+    .letra {
+      position: absolute;
+      color: white;
+      font-size: 2em;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
 
-  .letter {
-    font-size: 2rem;
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    line-height: 40px;
-    color: #444; /* letras apagadas */
-    user-select: none;
-    cursor: default;
-  }
-
-  .letter.found {
-    color: #ff4081;
-    font-weight: bold;
-  }
-
-  /* Cuadro para ingresar palabra */
-  #input-container {
-    position: fixed;
-    bottom: 30px;
-    width: 100%;
-    text-align: center;
-    z-index: 10;
-  }
-
-  #word-input {
-    font-size: 1.5rem;
-    padding: 8px 15px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    width: 220px;
-    text-align: center;
-  }
-
-  #submit-btn {
-    font-size: 1.5rem;
-    padding: 8px 15px;
-    margin-left: 10px;
-    border: none;
-    border-radius: 8px;
-    background-color: #ff4081;
-    color: white;
-    cursor: pointer;
-  }
-
-  #message {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    height: 24px;
-  }
-
-  /* Efecto linterna alrededor del cursor */
-  #spotlight {
-    pointer-events: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(circle 120px at center, rgba(255,255,255,0.15) 0%, transparent 80%);
-    mix-blend-mode: screen;
-    z-index: 9;
-    transition: background 0.3s ease;
-  }
-
-</style>
+    .linterna {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      background: radial-gradient(circle 100px at var(--x) var(--y), transparent 0%, black 100%);
+      z-index: 5;
+    }
+  </style>
 </head>
 <body>
+  <h1>Caja 2 💝</h1>
 
-<header>Caja 2 💝</header>
+  <div id="contenedor-letras"></div>
+  <div class="linterna" id="linterna"></div>
 
-<div id="letters"></div>
+  <script>
+    const letras = "nunca ame tanto a alguien como a ti".split('');
+    const contenedor = document.getElementById('contenedor-letras');
 
-<div id="input-container">
-  <input type="text" id="word-input" placeholder="Escribe la palabra aquí..." autocomplete="off" />
-  <button id="submit-btn">Enviar</button>
-  <div id="message"></div>
-</div>
-
-<div id="spotlight"></div>
-
-<script>
-  const palabra = 'soy tuyo';
-  const letrasPalabra = palabra.replace(/\s+/g, '').split(''); // letras sin espacios
-
-  // Letras para la sopa: mezclamos letras de la palabra con letras aleatorias
-  const letrasExtras = 'abcdefghijklmnopqrstuvwxyz'.split('');
-  const totalLetras = 60; // cantidad total de letras en pantalla
-
-  // Generar array de letras mezcladas
-  let letrasSopa = [...letrasPalabra];
-  while (letrasSopa.length < totalLetras) {
-    const aleatoria = letrasExtras[Math.floor(Math.random() * letrasExtras.length)];
-    letrasSopa.push(aleatoria);
-  }
-
-  // Mezclamos las letras para que no estén agrupadas
-  function mezclarArray(array) {
-    for(let i = array.length -1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i +1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
-  mezclarArray(letrasSopa);
-
-  const contenedor = document.getElementById('letters');
-
-  // Crear elementos span para cada letra
-  letrasSopa.forEach((letra, i) => {
-    const span = document.createElement('span');
-    span.classList.add('letter');
-    span.textContent = letra;
-    span.dataset.letra = letra;
-    contenedor.appendChild(span);
-  });
-
-  // Spotlight linterna sigue el cursor
-  const spotlight = document.getElementById('spotlight');
-
-  let timeoutId = null;
-
-  window.addEventListener('mousemove', e => {
-    // Actualiza la posición y el gradiente de la linterna
-    spotlight.style.background = `radial-gradient(circle 120px at ${e.clientX}px ${e.clientY}px, rgba(255,255,255,0.15) 0%, transparent 80%)`;
-
-    // Limpiamos el timer anterior para que no apague rápido
-    if(timeoutId) clearTimeout(timeoutId);
-
-    // Cuando el mouse se mueve, mostramos la linterna (si estaba negra)
-    spotlight.style.background = `radial-gradient(circle 120px at ${e.clientX}px ${e.clientY}px, rgba(255,255,255,0.15) 0%, transparent 80%)`;
-
-    // Si no hay movimiento en 1.5 segundos, se vuelve negro
-    timeoutId = setTimeout(() => {
-      spotlight.style.background = 'transparent';
-    }, 1500);
-  });
-
-  // Detectar letras correctas al pasar la linterna por encima
-  const letrasSpan = document.querySelectorAll('.letter');
-  letrasSpan.forEach(span => {
-    span.addEventListener('mouseenter', () => {
-      const letra = span.dataset.letra;
-      // Si la letra está en la palabra a buscar, resaltamos
-      if (letrasPalabra.includes(letra)) {
-        span.classList.add('found');
-      }
+    letras.forEach(letra => {
+      const span = document.createElement('span');
+      span.classList.add('letra');
+      span.textContent = letra;
+      span.style.top = Math.random() * 90 + 'vh';
+      span.style.left = Math.random() * 95 + 'vw';
+      contenedor.appendChild(span);
     });
-  });
 
-  // Validación al enviar palabra
-  const input = document.getElementById('word-input');
-  const boton = document.getElementById('submit-btn');
-  const mensaje = document.getElementById('message');
+    const linterna = document.getElementById('linterna');
 
-  boton.addEventListener('click', () => {
-    const valor = input.value.trim().toLowerCase();
-    if(valor === palabra){
-      mensaje.style.color = '#00ff00';
-      mensaje.textContent = '¡Correcto! 💝';
-    } else {
-      mensaje.style.color = '#ff4040';
-      mensaje.textContent = 'Incorrecto, intenta de nuevo.';
-      input.value = '';
-    }
-  });
+    document.addEventListener('mousemove', e => {
+      const x = e.clientX;
+      const y = e.clientY;
+      linterna.style.setProperty('--x', `${x}px`);
+      linterna.style.setProperty('--y', `${y}px`);
 
-  // También se puede enviar con Enter
-  input.addEventListener('keydown', e => {
-    if(e.key === 'Enter'){
-      boton.click();
-    }
-  });
-</script>
-
+      document.querySelectorAll('.letra').forEach(letra => {
+        const rect = letra.getBoundingClientRect();
+        const dx = rect.left + rect.width / 2 - x;
+        const dy = rect.top + rect.height / 2 - y;
+        const distancia = Math.sqrt(dx * dx + dy * dy);
+        letra.style.opacity = distancia < 100 ? 1 : 0;
+      });
+    });
+  </script>
 </body>
 </html>
