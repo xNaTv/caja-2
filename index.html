@@ -15,7 +15,7 @@
       background: black;
       overflow: hidden;
       font-family: 'Cursive', sans-serif;
-      cursor: auto; /* cursor visible */
+      cursor: auto;
       color: white;
       position: relative;
       user-select: none;
@@ -45,7 +45,18 @@
       user-select: none;
     }
 
-    /* Linterna efecto */
+    #vidas-container {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.3em;
+      color: #ff6f91;
+      font-style: italic;
+      user-select: none;
+      z-index: 10;
+    }
+
     .linterna {
       position: fixed;
       width: 150px;
@@ -58,10 +69,9 @@
       transition: left 0.05s, top 0.05s;
     }
 
-    /* Letras ocultas */
     .letra {
       position: absolute;
-      color: black; /* ocultas */
+      color: black;
       font-size: 2em;
       font-style: italic;
       cursor: pointer;
@@ -74,13 +84,12 @@
     }
 
     .letra.clicked {
-      color: #ff69b4; /* rosa para letras ya usadas */
+      color: #ff69b4;
       cursor: default;
       pointer-events: none;
       font-weight: bold;
     }
 
-    /* Ahorcado frase abajo */
     #frase-container {
       position: fixed;
       bottom: 20px;
@@ -118,18 +127,6 @@
       font-family: 'Cursive', sans-serif;
       user-select: none;
     }
-
-    #vidas-container {
-      position: fixed;
-      top: 110px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 1.3em;
-      color: #ff6f91;
-      font-style: italic;
-      user-select: none;
-      z-index: 10;
-    }
   </style>
 </head>
 <body>
@@ -155,7 +152,6 @@
     const vidasContainer = document.getElementById('vidas-container');
     const consejo = document.getElementById('consejo');
 
-    // Mostrar la frase con guiones para letras y espacios normales
     function mostrarFrase(estado) {
       let display = '';
       for(let i = 0; i < letrasFrase.length; i++){
@@ -169,11 +165,9 @@
       fraseContainer.textContent = display.trim();
     }
 
-    // Estado inicial: nada descubierto
     let estadoLetras = letrasFrase.map(l => l === ' ' ? true : false);
     mostrarFrase(estadoLetras);
 
-    // Crear letras dispersas aleatorias
     const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
     const totalLetras = 50;
 
@@ -202,7 +196,6 @@
 
     crearLetras();
 
-    // Actualizar visibilidad letras bajo linterna
     function actualizarLinterna(e){
       const x = e.clientX;
       const y = e.clientY;
@@ -226,23 +219,19 @@
 
     window.addEventListener('mousemove', actualizarLinterna);
 
-    // Vidas para errores
     let vidas = 5;
     vidasContainer.textContent = `Vidas: ${vidas}`;
 
-    // Bloqueo para cuando pierde o gana
     let juegoTerminado = false;
 
-    // Click en letras
     contenedorLetras.addEventListener('click', e => {
-      if(juegoTerminado) return; // bloquea clicks si terminó
+      if(juegoTerminado) return;
       if(!e.target.classList.contains('letra') || e.target.classList.contains('clicked')){
         return;
       }
 
       const letraClickeada = e.target.textContent.toLowerCase();
 
-      // Verificar si letra está en la frase y no descubierta aún
       let actualizado = false;
       for(let i=0; i < letrasFrase.length; i++){
         if(letrasFrase[i] === letraClickeada && !estadoLetras[i]){
@@ -255,16 +244,15 @@
         e.target.classList.add('clicked');
         mostrarFrase(estadoLetras);
 
-        // Si completó la frase:
         if(estadoLetras.every(v => v === true)){
           juegoTerminado = true;
           mensajeFinal.textContent = 'Felicidades amor: el codigo de la caja es "te conoci"';
+          mensajeFinal.style.color = '#00ff00';
           mensajeFinal.style.display = 'block';
           vidasContainer.style.display = 'none';
           consejo.style.display = 'none';
         }
       } else {
-        // Letra incorrecta: pierde vida
         vidas--;
         vidasContainer.textContent = `Vidas: ${vidas}`;
         e.target.style.color = 'red';
