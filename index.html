@@ -163,10 +163,13 @@
       for(let i = 0; i < letrasFrase.length; i++){
         if(letrasFrase[i] === ' '){
           display += '  ';
+        } else if(i === 2){
+          // Aquí metemos más espacios después del segundo guion
+          display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
+          display += '     '; // CINCO espacios de separación extra
         } else {
           display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
-          if(i === 1) display += '     '; // CINCO espacios después del segundo guion
-          else display += ' ';
+          display += ' ';
         }
       }
       fraseContainer.textContent = display.trim();
