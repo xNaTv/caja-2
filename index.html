@@ -165,7 +165,7 @@
           display += '  ';
         } else {
           display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
-          if(i === 1) display += '  '; // dos espacios extra después del segundo guion
+          if(i === 1) display += '  '; // dos espacios después del segundo guion
           else display += ' ';
         }
       }
@@ -176,7 +176,7 @@
     mostrarFrase(estadoLetras);
 
     const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
-    const totalLetras = 50;
+    const totalLetras = 30; // Menos letras ocultas para facilitar
 
     function crearLetras() {
       for(let i = 0; i < totalLetras; i++){
@@ -280,9 +280,6 @@
       }
     });
   </script>
-
-  <div id="frase-container"></div>
-  <div id="mensaje-final"></div>
 
 </body>
 </html>
