@@ -4,11 +4,15 @@
   <meta charset="UTF-8">
   <title>Caja 2 💝</title>
   <style>
-    html, body {
+    * {
       margin: 0;
       padding: 0;
-      height: 100%;
-      background-color: black;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      background: black;
       overflow: hidden;
       font-family: 'Cursive', sans-serif;
       cursor: none;
@@ -17,69 +21,77 @@
     h1 {
       position: absolute;
       top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 3em;
-      color: white;
+      left: 20px;
+      color: pink;
+      font-size: 2.5em;
       font-style: italic;
-      z-index: 10;
+      z-index: 2;
     }
 
     .letra {
       position: absolute;
-      color: white;
+      color: black;
       font-size: 2em;
       font-style: italic;
-      opacity: 0;
-      transition: opacity 0.2s;
+      transition: color 0.3s ease;
+      pointer-events: auto;
+    }
+
+    .letra.visible {
+      color: white;
     }
 
     .linterna {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.95) 80%);
       pointer-events: none;
-      background: radial-gradient(circle 100px at var(--x) var(--y), transparent 0%, black 100%);
-      z-index: 5;
+      mix-blend-mode: lighten;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
   <h1>Caja 2 💝</h1>
-
-  <div id="contenedor-letras"></div>
   <div class="linterna" id="linterna"></div>
 
-  <script>
-    const letras = "nunca ame tanto a alguien como a ti".split('');
-    const contenedor = document.getElementById('contenedor-letras');
+  <!-- Letras ocultas dispersas -->
+  <div id="letras-container"></div>
 
-    letras.forEach(letra => {
-      const span = document.createElement('span');
-      span.classList.add('letra');
+  <script>
+    const letras = "Nunca ame tanto a alguien como a ti".split("");
+    const container = document.getElementById("letras-container");
+
+    // Crear letras en posiciones aleatorias
+    letras.forEach((letra, index) => {
+      const span = document.createElement("span");
+      span.classList.add("letra");
       span.textContent = letra;
-      span.style.top = Math.random() * 90 + 'vh';
-      span.style.left = Math.random() * 95 + 'vw';
-      contenedor.appendChild(span);
+
+      // Posición aleatoria
+      const x = Math.random() * (window.innerWidth - 30);
+      const y = Math.random() * (window.innerHeight - 30);
+      span.style.left = `${x}px`;
+      span.style.top = `${y}px`;
+
+      // Mostrar solo por 1 segundo al pasar el mouse
+      span.addEventListener("mouseenter", () => {
+        span.classList.add("visible");
+        setTimeout(() => {
+          span.classList.remove("visible");
+        }, 1000);
+      });
+
+      container.appendChild(span);
     });
 
-    const linterna = document.getElementById('linterna');
-
-    document.addEventListener('mousemove', e => {
-      const x = e.clientX;
-      const y = e.clientY;
-      linterna.style.setProperty('--x', `${x}px`);
-      linterna.style.setProperty('--y', `${y}px`);
-
-      document.querySelectorAll('.letra').forEach(letra => {
-        const rect = letra.getBoundingClientRect();
-        const dx = rect.left + rect.width / 2 - x;
-        const dy = rect.top + rect.height / 2 - y;
-        const distancia = Math.sqrt(dx * dx + dy * dy);
-        letra.style.opacity = distancia < 100 ? 1 : 0;
-      });
+    // Linterna que sigue al mouse
+    const linterna = document.getElementById("linterna");
+    document.addEventListener("mousemove", (e) => {
+      linterna.style.left = `${e.pageX - 75}px`;
+      linterna.style.top = `${e.pageY - 75}px`;
     });
   </script>
 </body>
