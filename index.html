@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Caja 2 💝 - Juego Linterna Ahorcado</title>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
     * {
       margin: 0;
@@ -37,12 +37,12 @@
 
     #consejo {
       position: fixed;
-      top: 60px;
+      top: 80px; /* Bajado para dejar espacio debajo del título */
       left: 50%;
       transform: translateX(-50%);
       font-family: 'Dancing Script', cursive;
       font-style: italic;
-      font-size: 1em;
+      font-size: 0.9em; /* Más pequeño */
       color: #ffeef2;
       z-index: 10;
       user-select: none;
@@ -165,7 +165,8 @@
           display += '  ';
         } else {
           display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
-          display += ' ';
+          if(i === 1) display += '  '; // dos espacios extra después del segundo guion
+          else display += ' ';
         }
       }
       fraseContainer.textContent = display.trim();
@@ -279,6 +280,9 @@
       }
     });
   </script>
+
+  <div id="frase-container"></div>
+  <div id="mensaje-final"></div>
 
 </body>
 </html>
