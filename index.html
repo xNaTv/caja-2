@@ -33,6 +33,18 @@
       user-select: none;
     }
 
+    #consejo {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-style: italic;
+      font-size: 1.1em;
+      color: #ffaad0;
+      z-index: 10;
+      user-select: none;
+    }
+
     /* Linterna efecto */
     .linterna {
       position: fixed;
@@ -106,11 +118,26 @@
       font-family: 'Cursive', sans-serif;
       user-select: none;
     }
+
+    #vidas-container {
+      position: fixed;
+      top: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.3em;
+      color: #ff6f91;
+      font-style: italic;
+      user-select: none;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
 
   <h1>Caja 2 💝</h1>
+  <div id="consejo">Arma la palabra, clickea las letras para completar la palabra</div>
+  <div id="vidas-container">Vidas: 5</div>
+
   <div class="linterna" id="linterna"></div>
   <div id="letras-container"></div>
 
@@ -125,14 +152,15 @@
     const fraseContainer = document.getElementById('frase-container');
     const mensajeFinal = document.getElementById('mensaje-final');
     const linterna = document.getElementById('linterna');
+    const vidasContainer = document.getElementById('vidas-container');
+    const consejo = document.getElementById('consejo');
 
     // Mostrar la frase con guiones para letras y espacios normales
     function mostrarFrase(estado) {
-      // estado es array con true/false si la letra está descubierta
       let display = '';
       for(let i = 0; i < letrasFrase.length; i++){
         if(letrasFrase[i] === ' '){
-          display += '  '; // doble espacio para visual claro
+          display += '  ';
         } else {
           display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
           display += ' ';
@@ -145,7 +173,7 @@
     let estadoLetras = letrasFrase.map(l => l === ' ' ? true : false);
     mostrarFrase(estadoLetras);
 
-    // Crear letras dispersas aleatorias (incluye letras del abecedario)
+    // Crear letras dispersas aleatorias
     const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
     const totalLetras = 50;
 
@@ -160,7 +188,6 @@
         contenedorLetras.appendChild(span);
       }
 
-      // Agregar letras de la frase para asegurar que estén
       letrasFrase.forEach(letra => {
         if(letra !== ' '){
           const span = document.createElement('span');
@@ -199,8 +226,16 @@
 
     window.addEventListener('mousemove', actualizarLinterna);
 
+    // Vidas para errores
+    let vidas = 5;
+    vidasContainer.textContent = `Vidas: ${vidas}`;
+
+    // Bloqueo para cuando pierde o gana
+    let juegoTerminado = false;
+
     // Click en letras
     contenedorLetras.addEventListener('click', e => {
+      if(juegoTerminado) return; // bloquea clicks si terminó
       if(!e.target.classList.contains('letra') || e.target.classList.contains('clicked')){
         return;
       }
@@ -222,17 +257,31 @@
 
         // Si completó la frase:
         if(estadoLetras.every(v => v === true)){
+          juegoTerminado = true;
           mensajeFinal.textContent = 'Felicidades amor: el codigo de la caja es "te conoci"';
           mensajeFinal.style.display = 'block';
+          vidasContainer.style.display = 'none';
+          consejo.style.display = 'none';
         }
       } else {
-        // Letra incorrecta: parpadeo rojo corto
+        // Letra incorrecta: pierde vida
+        vidas--;
+        vidasContainer.textContent = `Vidas: ${vidas}`;
         e.target.style.color = 'red';
         setTimeout(() => {
           if(!e.target.classList.contains('clicked')){
             e.target.style.color = 'black';
           }
         }, 500);
+
+        if(vidas <= 0){
+          juegoTerminado = true;
+          mensajeFinal.textContent = 'Perdiste :c\nRefresca la página para intentarlo de nuevo.';
+          mensajeFinal.style.color = '#ff4444';
+          mensajeFinal.style.display = 'block';
+          vidasContainer.style.display = 'none';
+          consejo.style.display = 'none';
+        }
       }
     });
   </script>
