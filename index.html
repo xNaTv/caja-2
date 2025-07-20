@@ -176,10 +176,13 @@
     mostrarFrase(estadoLetras);
 
     const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
-    const totalLetras = 30; // Menos letras ocultas para facilitar
 
+    const totalLetrasAleatorias = 15;
+
+    // Para crear letras aleatorias
     function crearLetras() {
-      for(let i = 0; i < totalLetras; i++){
+      // Crear letras aleatorias
+      for(let i = 0; i < totalLetrasAleatorias; i++){
         const span = document.createElement('span');
         span.classList.add('letra');
         const letraAleatoria = abecedario[Math.floor(Math.random()*abecedario.length)];
@@ -188,7 +191,7 @@
         span.style.top = Math.random() * (window.innerHeight - 60) + 'px';
         contenedorLetras.appendChild(span);
       }
-
+      // Crear letras de la frase
       letrasFrase.forEach(letra => {
         if(letra !== ' '){
           const span = document.createElement('span');
