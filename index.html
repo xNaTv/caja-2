@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Caja 2 💝</title>
+  <meta charset="UTF-8" />
+  <title>Caja 2 💝 - Juego Linterna Ahorcado</title>
   <style>
     * {
       margin: 0;
@@ -15,84 +15,235 @@
       background: black;
       overflow: hidden;
       font-family: 'Cursive', sans-serif;
-      cursor: none;
+      cursor: auto; /* cursor visible */
+      color: white;
+      position: relative;
+      user-select: none;
     }
 
     h1 {
       position: absolute;
       top: 10px;
       left: 20px;
-      color: pink;
-      font-size: 2.5em;
       font-style: italic;
-      z-index: 2;
+      font-size: 2.5em;
+      color: pink;
+      z-index: 10;
     }
 
+    /* Linterna efecto */
+    .linterna {
+      position: fixed;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.9) 80%);
+      mix-blend-mode: lighten;
+      z-index: 5;
+      transition: left 0.05s, top 0.05s;
+    }
+
+    /* Letras ocultas */
     .letra {
       position: absolute;
-      color: black;
+      color: black; /* ocultas */
       font-size: 2em;
       font-style: italic;
+      cursor: pointer;
+      user-select: none;
       transition: color 0.3s ease;
-      pointer-events: auto;
     }
 
     .letra.visible {
       color: white;
     }
 
-    .linterna {
-      position: fixed;
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.95) 80%);
+    .letra.clicked {
+      color: #ff69b4; /* rosa para letras ya usadas */
+      cursor: default;
       pointer-events: none;
-      mix-blend-mode: lighten;
-      z-index: 1;
+      font-weight: bold;
+    }
+
+    /* Ahorcado frase abajo */
+    #frase-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      letter-spacing: 10px;
+      font-style: italic;
+      color: white;
+      user-select: none;
+      z-index: 10;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 20px;
+      border-radius: 15px;
+      min-width: 300px;
+      text-align: center;
+      font-family: 'Cursive', sans-serif;
+    }
+
+    #mensaje-final {
+      position: fixed;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
+      color: #00ff00;
+      font-weight: bold;
+      text-align: center;
+      background: rgba(0,0,0,0.8);
+      padding: 20px 40px;
+      border-radius: 20px;
+      display: none;
+      z-index: 20;
+      font-family: 'Cursive', sans-serif;
     }
   </style>
 </head>
 <body>
+
   <h1>Caja 2 💝</h1>
   <div class="linterna" id="linterna"></div>
-
-  <!-- Letras ocultas dispersas -->
   <div id="letras-container"></div>
 
+  <div id="frase-container"></div>
+  <div id="mensaje-final"></div>
+
   <script>
-    const letras = "Nunca ame tanto a alguien como a ti".split("");
-    const container = document.getElementById("letras-container");
+    const frase = "te pertenezco";
+    const letrasFrase = frase.split('');
 
-    // Crear letras en posiciones aleatorias
-    letras.forEach((letra, index) => {
-      const span = document.createElement("span");
-      span.classList.add("letra");
-      span.textContent = letra;
+    const contenedorLetras = document.getElementById('letras-container');
+    const fraseContainer = document.getElementById('frase-container');
+    const mensajeFinal = document.getElementById('mensaje-final');
+    const linterna = document.getElementById('linterna');
 
-      // Posición aleatoria
-      const x = Math.random() * (window.innerWidth - 30);
-      const y = Math.random() * (window.innerHeight - 30);
-      span.style.left = `${x}px`;
-      span.style.top = `${y}px`;
+    // Mostrar la frase con guiones para letras y espacios normales
+    function mostrarFrase(estado) {
+      // estado es array con true/false si la letra está descubierta
+      let display = '';
+      for(let i = 0; i < letrasFrase.length; i++){
+        if(letrasFrase[i] === ' '){
+          display += '  '; // doble espacio para visual claro
+        } else {
+          display += estado[i] ? letrasFrase[i].toUpperCase() : '_';
+          display += ' ';
+        }
+      }
+      fraseContainer.textContent = display.trim();
+    }
 
-      // Mostrar solo por 1 segundo al pasar el mouse
-      span.addEventListener("mouseenter", () => {
-        span.classList.add("visible");
-        setTimeout(() => {
-          span.classList.remove("visible");
-        }, 1000);
+    // Estado inicial: nada descubierto
+    let estadoLetras = letrasFrase.map(l => l === ' ' ? true : false);
+    mostrarFrase(estadoLetras);
+
+    // Crear letras dispersas aleatorias (incluye solo letras que hay en la frase + extras)
+    // Vamos a poner todas las letras del abecedario para que sea interesante
+    const abecedario = "abcdefghijklmnopqrstuvwxyz".split('');
+
+    // Crear 50 letras dispersas (puede haber repetidas)
+    const totalLetras = 50;
+
+    function crearLetras() {
+      for(let i = 0; i < totalLetras; i++){
+        const span = document.createElement('span');
+        span.classList.add('letra');
+
+        // Elegir letra: si i < letrasFrase.length, ponemos las letras de la frase en random o al azar (para asegurar estén)
+        // Pero para mejor mezcla, elegimos cualquier letra del abecedario
+        const letraAleatoria = abecedario[Math.floor(Math.random()*abecedario.length)];
+
+        span.textContent = letraAleatoria;
+        // posición aleatoria dentro de la ventana
+        span.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+        span.style.top = Math.random() * (window.innerHeight - 60) + 'px';
+
+        contenedorLetras.appendChild(span);
+      }
+
+      // Ahora agregamos todas las letras únicas de la frase para asegurarnos que estén
+      letrasFrase.forEach(letra => {
+        if(letra !== ' '){
+          // Creamos una letra oculta extra para la letra real
+          const span = document.createElement('span');
+          span.classList.add('letra');
+          span.textContent = letra;
+          span.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+          span.style.top = Math.random() * (window.innerHeight - 60) + 'px';
+          contenedorLetras.appendChild(span);
+        }
       });
+    }
 
-      container.appendChild(span);
-    });
+    crearLetras();
 
-    // Linterna que sigue al mouse
-    const linterna = document.getElementById("linterna");
-    document.addEventListener("mousemove", (e) => {
-      linterna.style.left = `${e.pageX - 75}px`;
-      linterna.style.top = `${e.pageY - 75}px`;
+    // Función para actualizar la visibilidad de las letras bajo la linterna
+    function actualizarLinterna(e){
+      const x = e.clientX;
+      const y = e.clientY;
+      linterna.style.left = (x - 75) + 'px';
+      linterna.style.top = (y - 75) + 'px';
+
+      const letras = document.querySelectorAll('.letra');
+      letras.forEach(letra => {
+        const rect = letra.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const distancia = Math.hypot(cx - x, cy - y);
+
+        if(distancia < 75 && !letra.classList.contains('clicked')){
+          letra.classList.add('visible');
+        } else if(!letra.classList.contains('clicked')){
+          letra.classList.remove('visible');
+        }
+      });
+    }
+
+    window.addEventListener('mousemove', actualizarLinterna);
+
+    // Manejar click en letras
+    contenedorLetras.addEventListener('click', e => {
+      if(!e.target.classList.contains('letra') || e.target.classList.contains('clicked')){
+        return;
+      }
+
+      const letraClickeada = e.target.textContent.toLowerCase();
+
+      // Comprobar si la letra está en la frase y no está descubierta
+      let actualizado = false;
+      for(let i=0; i < letrasFrase.length; i++){
+        if(letrasFrase[i] === letraClickeada && !estadoLetras[i]){
+          estadoLetras[i] = true;
+          actualizado = true;
+        }
+      }
+
+      if(actualizado){
+        e.target.classList.add('clicked');
+        mostrarFrase(estadoLetras);
+
+        // Verificar si completó la frase
+        if(estadoLetras.every(v => v === true)){
+          mensajeFinal.textContent = 'Felicidades amor: el codigo de la caja es "te conoci"';
+          mensajeFinal.style.display = 'block';
+        }
+      } else {
+        // Letra no correcta, opcional: se puede marcar error o no hacer nada
+        // Por ejemplo, parpadeo rojo:
+        e.target.style.color = 'red';
+        setTimeout(() => {
+          if(!e.target.classList.contains('clicked')){
+            e.target.style.color = 'black';
+          }
+        }, 500);
+      }
     });
   </script>
+
 </body>
 </html>
+
